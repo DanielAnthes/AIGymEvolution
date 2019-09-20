@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from random import choice
 
-env = gym.make('CartPole-v0')           # initialize environment
+env = gym.make('CartPole-v1')           # initialize environment
 
 # each agents' weights are stored as a column in the weight matrix, randomly
 # recombine weights and create new agents
@@ -31,8 +31,8 @@ def calc_action(observation, weights):
 def run_episode(env, parameters):
     observation = env.reset()
     totalreward = 0
-    for _ in range(200):
-        action = calc_action(parameters, parameters)
+    for _ in range(1000):
+        action = calc_action(observation, parameters)
         observation, reward, done, info = env.step(action)
         totalreward += reward
         if done:
@@ -53,28 +53,29 @@ def run_generation(env, parameters):
     mean_reward = np.mean(rewards)
 
     ranking = rewards.argsort()
-    return parameters[:,ranking[-5:]], best_reward, mean_reward
+    return parameters[:,ranking[-5:]], best_reward, mean_reward, parameters[:,ranking[-1]]
 
 
 def run(env, num_episodes=200, pop_size=30):
     parameters = np.random.rand(4,pop_size) * 2 - 1  # randomly initialize parameters
     best_rewards = np.zeros(num_episodes)
     mean_rewards = np.zeros(num_episodes)
+    best_agent = parameters[:,0]
 
     for i in range(num_episodes):
         print("*** EPISODE ", i, " ***")
         # run simulation for every agent in population
-        best_agents, best_reward, mean_reward = run_generation(env, parameters)
+        best_agents, best_reward, mean_reward, best_agent = run_generation(env, parameters)
         best_rewards[i] = best_reward
         mean_rewards[i] = mean_reward
         print("Best reward in generation: ", best_reward)
         print("Mean reward in generation: ", mean_reward)
 
         # generate new population
-        weights = create_new_generation(pop_size, best_agents)
+        parameters = create_new_generation(pop_size, best_agents)
 
     print("done training")
-    return weights, best_rewards, mean_rewards
+    return parameters, best_rewards, mean_rewards, best_agent
 
 def plot_training(best_rewards, mean_rewards):
     plt.figure()
@@ -85,5 +86,19 @@ def plot_training(best_rewards, mean_rewards):
     plt.ylabel("Score")
     plt.show()
 
-weights, best_scores, mean_scores = run(env, 10000, 100)
+def play(env, weights):
+    total_reward = 0
+    observation = env.reset()
+    done = False
+
+    while not done:
+        env.render()
+        action = calc_action(observation, weights)
+        observation, reward, done, info = env.step(action)
+        total_reward += reward
+
+
+weights, best_scores, mean_scores, best_agent = run(env, 50, 30)
+print(weights)
 plot_training(best_scores, mean_scores)
+play(env, best_agent)
