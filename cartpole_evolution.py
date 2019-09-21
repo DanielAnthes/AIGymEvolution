@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from random import choice
 
-env = gym.make('CartPole-v1')           # initialize environment
+env = gym.make('Acrobot-v1')           # initialize environment
 
 # each agents' weights are stored as a column in the weight matrix, randomly
 # recombine weights and create new agents
@@ -57,7 +57,8 @@ def run_generation(env, parameters):
 
 
 def run(env, num_episodes=200, pop_size=30):
-    parameters = np.random.rand(4,pop_size) * 2 - 1  # randomly initialize parameters
+    num_params = len(env.reset())
+    parameters = np.random.rand(num_params,pop_size) * 2 - 1  # randomly initialize parameters
     best_rewards = np.zeros(num_episodes)
     mean_rewards = np.zeros(num_episodes)
     best_agent = parameters[:,0]
@@ -98,7 +99,7 @@ def play(env, weights):
         total_reward += reward
 
 
-weights, best_scores, mean_scores, best_agent = run(env, 50, 30)
+weights, best_scores, mean_scores, best_agent = run(env, 200, 60)
 print(weights)
 plot_training(best_scores, mean_scores)
 play(env, best_agent)
