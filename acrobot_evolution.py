@@ -18,7 +18,7 @@ def create_new_generation(pop_size, best_agents):
             new_pop[p,a] = np.random.normal(loc=choice(best_agents[p,:]), scale=0.3)
     '''
     for a in range(pop_size):
-        new_pop[a,:] = [np.random.normal(loc=x, scale=0.3) for x in choice(best_agents)]
+        new_pop[a,:] = [np.random.normal(loc=x, scale=0.1) for x in choice(best_agents)]
 
     return new_pop
 
